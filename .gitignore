@@ -1,0 +1,7 @@
+# misc
+.history/
+.DS_Store
+.env.local
+
+# project plan
+plan/
