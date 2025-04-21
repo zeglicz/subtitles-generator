@@ -3,5 +3,9 @@
 .DS_Store
 .env.local
 
-# project plan
+# project
 plan/
+ex_audio/
+extracted_audio.mp3
+temp.mp4
+temp.mp3
