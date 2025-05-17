@@ -5,9 +5,24 @@ from pydub import AudioSegment
 from dotenv import dotenv_values
 
 env = dotenv_values(".env.local")
-openai_client = OpenAI(api_key=env["OPENAI_API_KEY"])
+
+def get_openai_client():
+  return OpenAI(api_key=st.session_state['openai_api_key'])
 
 st.title('Subtitles generator')
+
+if not st.session_state.get('openai_api_key'):
+  if 'OPENAI_API_KEY' in env:
+    st.session_state['openai_api_key'] = env['OPENAI_API_KEY']
+  else:
+    st.info('Add your OpenAI API key to use the application')
+    st.session_state['openai_api_key'] = st.text_input('API key')
+
+if not st.session_state.get('openai_api_key'):
+  st.stop()
+  st.error('Invalid OpenAI API key')
+
+openai_client = OpenAI(api_key=st.session_state['openai_api_key'])
 
 # Inicjalizacja stanu sesji dla przechowywania transkrypcji
 if 'transcript' not in st.session_state:
