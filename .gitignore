@@ -5,7 +5,7 @@
 .idea/
 .history/
 plan/
-ex_audio/
+temp/
 
 # cache
 __pycache__/
