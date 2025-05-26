@@ -6,39 +6,41 @@ from dotenv import dotenv_values
 
 env = dotenv_values(".env.local")
 
-st.set_page_config(page_title='Subtitles generator', layout='centered')
-st.title('Subtitles generator')
+st.set_page_config(page_title="Subtitles generator", layout="centered")
+st.title("Subtitles generator")
+
 
 def get_openai_client():
-  return OpenAI(api_key=st.session_state['openai_api_key'])
+    return OpenAI(api_key=st.session_state["openai_api_key"])
 
-if 'transcript' not in st.session_state:
+
+if "transcript" not in st.session_state:
     st.session_state.transcript = None
 
-if 'previous_file' not in st.session_state:
+if "previous_file" not in st.session_state:
     st.session_state.previous_file = None
 
-if 'previous_file_type' not in st.session_state:
+if "previous_file_type" not in st.session_state:
     st.session_state.previous_file_type = None
 
 #
 # MAIN
 #
 
-if not st.session_state.get('openai_api_key'):
-  if 'OPENAI_API_KEY' in env:
-    st.session_state['openai_api_key'] = env['OPENAI_API_KEY']
-  else:
-    st.info('Add your OpenAI API key to use the application')
-    st.session_state['openai_api_key'] = st.text_input('API key')
+if not st.session_state.get("openai_api_key"):
+    if "OPENAI_API_KEY" in env:
+        st.session_state["openai_api_key"] = env["OPENAI_API_KEY"]
+    else:
+        st.info("Add your OpenAI API key to use the application")
+        st.session_state["openai_api_key"] = st.text_input("API key")
 
-if not st.session_state.get('openai_api_key'):
-  st.stop()
-  st.error('Invalid OpenAI API key')
+if not st.session_state.get("openai_api_key"):
+    st.stop()
+    st.error("Invalid OpenAI API key")
 
-openai_client = OpenAI(api_key=st.session_state['openai_api_key'])
+openai_client = OpenAI(api_key=st.session_state["openai_api_key"])
 
-file_type = st.selectbox('Select file type', ['', 'mp3', 'mp4', 'wav'])
+file_type = st.selectbox("Select file type", ["", "mp3", "mp4", "wav"])
 
 if file_type != st.session_state.previous_file_type:
     st.session_state.transcript = None
@@ -56,7 +58,7 @@ if file_type:
         with open(temp_file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
 
-        if file_type == 'mp4':
+        if file_type == "mp4":
             st.video(temp_file_path)
 
             st.subheader("Extracted Audio")
@@ -65,26 +67,26 @@ if file_type:
             audio.export(audio_path, format="mp3")
             st.audio(audio_path)
 
-        elif file_type in ['mp3', 'wav']:
+        elif file_type in ["mp3", "wav"]:
             st.audio(temp_file_path)
 
-        with st.form(key='transcription_form'):
+        with st.form(key="transcription_form"):
             st.write("Click the button below to generate subtitles")
-            submit_button = st.form_submit_button(label='Transcribe')
+            submit_button = st.form_submit_button(label="Transcribe")
 
             if submit_button:
                 audio_bytes = BytesIO()
 
-                if file_type == 'mp4':
+                if file_type == "mp4":
                     st.info("Converting video to audio...")
                     # Możemy użyć już wyekstrahowanego audio
                     audio = AudioSegment.from_file(audio_path, format="mp3")
                     audio.export(audio_bytes, format="mp3")
-                elif file_type == 'mp3':
+                elif file_type == "mp3":
                     st.info("Processing mp3 file...")
                     audio = AudioSegment.from_file(temp_file_path, format="mp3")
                     audio.export(audio_bytes, format="mp3")
-                elif file_type == 'wav':
+                elif file_type == "wav":
                     st.info("Processing wav file...")
                     audio = AudioSegment.from_file(temp_file_path, format="wav")
                     audio.export(audio_bytes, format="mp3")
@@ -96,7 +98,7 @@ if file_type:
                     transcript = openai_client.audio.transcriptions.create(
                         file=("audio.mp3", audio_bytes),
                         model="whisper-1",
-                        response_format="srt"
+                        response_format="srt",
                     )
 
                     st.session_state.transcript = transcript
@@ -112,7 +114,7 @@ if file_type:
                 label="Download SRT file",
                 data=st.session_state.transcript,
                 file_name="subtitles.srt",
-                mime="text/plain"
+                mime="text/plain",
             )
 
     else:
